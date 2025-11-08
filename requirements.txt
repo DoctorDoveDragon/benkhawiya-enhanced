@@ -24,7 +24,6 @@ sentence-transformers==2.2.2
 faiss-cpu==1.7.4
 langchain-community==0.0.4
 langchain-openai==0.0.2
-# langchain-chroma removed - version doesn't exist
 
 # Data Science & Research
 pandas==2.1.4
