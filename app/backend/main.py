@@ -29,10 +29,24 @@ langchain_service = EnhancedLangChainService()
 async def lifespan(app: FastAPI):
     # Startup
     logger.info("🌌 Benkhawiya Enhanced AI Cultural Consultant Starting Up")
-    await langchain_service.initialize()
-    await init_db()
-    async with AsyncSessionLocal() as db:
-        await seed_cosmic_principles(db)
+    try:
+        await langchain_service.initialize()
+    except Exception as exc:
+        logger.error(
+            "⚠️  LangChain service initialization failed (continuing in degraded mode): %s",
+            exc,
+        )
+
+    try:
+        await init_db()
+        async with AsyncSessionLocal() as db:
+            await seed_cosmic_principles(db)
+    except Exception as exc:
+        logger.error(
+            "⚠️  Database startup failed (continuing in degraded mode): %s",
+            exc,
+        )
+
     yield
     # Shutdown
     logger.info("🌌 Benkhawiya Enhanced AI Cultural Consultant Shutting Down")
