@@ -5,15 +5,20 @@ from dotenv import load_dotenv
 import logging
 from contextlib import asynccontextmanager
 
+from app.backend.services.langchain_service import EnhancedLangChainService
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 load_dotenv()
 
+langchain_service = EnhancedLangChainService()
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
     logger.info("🌌 Benkhawiya Enhanced AI Cultural Consultant Starting Up")
+    await langchain_service.initialize()
     yield
     # Shutdown
     logger.info("🌌 Benkhawiya Enhanced AI Cultural Consultant Shutting Down")
@@ -60,8 +65,7 @@ async def websocket_chat(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_text()
-            # Simple echo for now - will be enhanced with AI
-            response = f"🌌 Cosmic Response: I receive your query '{data}' through the Benkhawiya framework"
+            response = await langchain_service.process_query(data)
             await websocket.send_text(response)
     except WebSocketDisconnect:
         logger.info("Client disconnected")
