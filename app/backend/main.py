@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
@@ -7,7 +7,12 @@ from pathlib import Path
 from dotenv import load_dotenv
 import logging
 from contextlib import asynccontextmanager
+from sqlalchemy import select, text
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.backend.database import AsyncSessionLocal, get_db, init_db
+from app.backend.models.cosmic_principle import CosmicPrinciple
+from app.backend.seeds.cosmic_principles import seed_cosmic_principles
 from app.backend.services.langchain_service import EnhancedLangChainService
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -25,6 +30,9 @@ async def lifespan(app: FastAPI):
     # Startup
     logger.info("🌌 Benkhawiya Enhanced AI Cultural Consultant Starting Up")
     await langchain_service.initialize()
+    await init_db()
+    async with AsyncSessionLocal() as db:
+        await seed_cosmic_principles(db)
     yield
     # Shutdown
     logger.info("🌌 Benkhawiya Enhanced AI Cultural Consultant Shutting Down")
@@ -58,12 +66,19 @@ async def status():
     }
 
 @app.get("/health")
-async def health_check():
+async def health_check(db: AsyncSession = Depends(get_db)):
+    db_status = "disconnected"
+    try:
+        await db.execute(text("SELECT 1"))
+        db_status = "connected"
+    except Exception as exc:
+        logger.warning("Health check – DB unreachable: %s", exc)
+
     return {
-        "status": "healthy",
+        "status": "healthy" if db_status == "connected" else "degraded",
         "services": {
-            "database": "connected",
-            "langchain": "initialized",
+            "database": db_status,
+            "langchain": "initialized" if langchain_service.initialized else "pending",
             "community": "active",
             "research": "ready"
         }
@@ -81,16 +96,13 @@ async def websocket_chat(websocket: WebSocket):
         logger.info("Client disconnected")
 
 @app.get("/api/cosmic-principles")
-async def get_cosmic_principles():
+async def get_cosmic_principles(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(CosmicPrinciple).order_by(CosmicPrinciple.id))
+    principles = result.scalars().all()
     return {
         "principles": [
-            {"name": "DÁNÁ", "meaning": "Truth", "aspect": "pelu"},
-            {"name": "MÁTÁ", "meaning": "Justice", "aspect": "sewu"},
-            {"name": "HÓTÉ", "meaning": "Harmony", "aspect": "ruwa"},
-            {"name": "MÉKÁ", "meaning": "Balance", "aspect": "temu"},
-            {"name": "SÉBÁ", "meaning": "Order", "aspect": "sewu"},
-            {"name": "KÉPÉ", "meaning": "Reciprocity", "aspect": "ruwa"},
-            {"name": "ÌTỌJÚ", "meaning": "Mystery", "aspect": "ntu"}
+            {"name": p.name, "meaning": p.meaning, "aspect": p.aspect}
+            for p in principles
         ]
     }
 

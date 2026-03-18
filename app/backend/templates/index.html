@@ -442,18 +442,9 @@
 
 <script>
   // ── Cosmic Principles ─────────────────────────────────────────
-  const PRINCIPLES = [
-    { name: "DÁNÁ",   meaning: "Truth",        aspect: "pelu" },
-    { name: "MÁTÁ",   meaning: "Justice",      aspect: "sewu" },
-    { name: "HÓTÉ",   meaning: "Harmony",      aspect: "ruwa" },
-    { name: "MÉKÁ",   meaning: "Balance",      aspect: "temu" },
-    { name: "SÉBÁ",   meaning: "Order",        aspect: "sewu" },
-    { name: "KÉPÉ",   meaning: "Reciprocity",  aspect: "ruwa" },
-    { name: "ÌTỌJÚ", meaning: "Mystery",       aspect: "ntu"  }
-  ];
-
   const principlesList = document.getElementById('principles-list');
-  PRINCIPLES.forEach(p => {
+
+  function renderPrinciple(p) {
     const card = document.createElement('div');
     card.className = 'principle-card';
     card.innerHTML = `
@@ -464,7 +455,32 @@
       setInput(`Tell me about the cosmic principle of ${p.name} (${p.meaning}) and its aspect ${p.aspect}.`);
     });
     principlesList.appendChild(card);
-  });
+  }
+
+  async function loadPrinciples() {
+    try {
+      const res = await fetch('/api/cosmic-principles');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      principlesList.innerHTML = '';
+      data.principles.forEach(renderPrinciple);
+    } catch (err) {
+      console.error('Failed to load cosmic principles:', err);
+      // Fallback: static list so the sidebar is never blank
+      const FALLBACK = [
+        { name: "DÁNÁ",   meaning: "Truth",       aspect: "pelu" },
+        { name: "MÁTÁ",   meaning: "Justice",     aspect: "sewu" },
+        { name: "HÓTÉ",   meaning: "Harmony",     aspect: "ruwa" },
+        { name: "MÉKÁ",   meaning: "Balance",     aspect: "temu" },
+        { name: "SÉBÁ",   meaning: "Order",       aspect: "sewu" },
+        { name: "KÉPÉ",   meaning: "Reciprocity", aspect: "ruwa" },
+        { name: "ÌTỌJÚ", meaning: "Mystery",      aspect: "ntu"  }
+      ];
+      FALLBACK.forEach(renderPrinciple);
+    }
+  }
+
+  loadPrinciples();
 
   // ── WebSocket ─────────────────────────────────────────────────
   const messagesEl  = document.getElementById('messages');
