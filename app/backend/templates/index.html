@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🌌 Benkhawiya Enhanced – AI Cultural Consultant</title>
+  <style>
+    /* ─── Reset & Base ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0a1a;
+      --surface:   #111128;
+      --border:    #2a2a55;
+      --gold:      #d4af37;
+      --gold-light:#f0d060;
+      --cyan:      #00e5ff;
+      --purple:    #9c27b0;
+      --text:      #e8e8f0;
+      --muted:     #888;
+      --user-bg:   #1a2a4a;
+      --ai-bg:     #1a1a35;
+      --radius:    12px;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ─── Header ───────────────────────────────────────────────── */
+    header {
+      background: linear-gradient(135deg, #0d0d2b 0%, #1a0a2e 50%, #0d1a2e 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      font-size: 2rem;
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); filter: brightness(1); }
+      50%       { transform: scale(1.08); filter: brightness(1.3); }
+    }
+
+    .logo-text h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--gold), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .logo-text p {
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0,229,255,0.08);
+      border: 1px solid rgba(0,229,255,0.25);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 0.78rem;
+      color: var(--cyan);
+    }
+
+    .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #4caf50;
+      animation: blink 2s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+
+    /* ─── Main Layout ──────────────────────────────────────────── */
+    main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ─── Sidebar ──────────────────────────────────────────────── */
+    .sidebar {
+      width: 260px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+
+    .sidebar-section {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-section h2 {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+
+    .principle-card {
+      background: rgba(212,175,55,0.06);
+      border: 1px solid rgba(212,175,55,0.18);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .principle-card:hover {
+      background: rgba(212,175,55,0.14);
+      border-color: rgba(212,175,55,0.4);
+      transform: translateX(3px);
+    }
+
+    .principle-name {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--gold-light);
+    }
+
+    .principle-meaning {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .principle-aspect {
+      font-size: 0.68rem;
+      color: rgba(0,229,255,0.6);
+      margin-top: 2px;
+    }
+
+    .quick-prompts h2 {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 12px;
+    }
+
+    .quick-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: rgba(0,229,255,0.05);
+      border: 1px solid rgba(0,229,255,0.15);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      font-size: 0.78rem;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .quick-btn:hover {
+      background: rgba(0,229,255,0.12);
+      border-color: rgba(0,229,255,0.35);
+    }
+
+    /* ─── Chat Area ────────────────────────────────────────────── */
+    .chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .messages::-webkit-scrollbar { width: 6px; }
+    .messages::-webkit-scrollbar-track { background: transparent; }
+    .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    .message {
+      display: flex;
+      gap: 12px;
+      max-width: 800px;
+    }
+
+    .message.user { align-self: flex-end; flex-direction: row-reverse; }
+
+    .avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .message.user .avatar {
+      background: linear-gradient(135deg, #1a3a6a, #2a5a9a);
+      border: 1px solid rgba(0,229,255,0.3);
+    }
+
+    .message.ai .avatar {
+      background: linear-gradient(135deg, #2a0a4a, #4a1a6a);
+      border: 1px solid rgba(212,175,55,0.3);
+      animation: none;
+    }
+
+    .bubble {
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      line-height: 1.6;
+      font-size: 0.9rem;
+      max-width: 680px;
+    }
+
+    .message.user .bubble {
+      background: var(--user-bg);
+      border: 1px solid rgba(0,229,255,0.2);
+      border-top-right-radius: 3px;
+    }
+
+    .message.ai .bubble {
+      background: var(--ai-bg);
+      border: 1px solid rgba(212,175,55,0.18);
+      border-top-left-radius: 3px;
+    }
+
+    .bubble .sender {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .message.user .sender { color: var(--cyan); }
+    .message.ai  .sender { color: var(--gold); }
+
+    /* typing indicator */
+    .typing .bubble { padding: 14px 16px; }
+    .dots { display: flex; gap: 5px; align-items: center; }
+    .dots span {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--gold);
+      animation: bounce 1.2s ease-in-out infinite;
+    }
+    .dots span:nth-child(2) { animation-delay: 0.2s; }
+    .dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+      40%            { transform: translateY(-6px); opacity: 1; }
+    }
+
+    /* ─── Input Bar ────────────────────────────────────────────── */
+    .input-bar {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .input-bar textarea {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 0.9rem;
+      padding: 10px 14px;
+      resize: none;
+      min-height: 44px;
+      max-height: 120px;
+      line-height: 1.5;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+
+    .input-bar textarea:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+
+    .input-bar textarea::placeholder { color: var(--muted); }
+
+    .send-btn {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, var(--gold), #b8960c);
+      color: #000;
+      font-size: 1.15rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.15s, filter 0.15s;
+      flex-shrink: 0;
+    }
+
+    .send-btn:hover  { transform: scale(1.08); filter: brightness(1.15); }
+    .send-btn:active { transform: scale(0.95); }
+    .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* ─── Welcome Banner ───────────────────────────────────────── */
+    .welcome {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+    }
+
+    .welcome .icon { font-size: 3.5rem; margin-bottom: 12px; }
+    .welcome h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--gold), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+    .welcome p { font-size: 0.9rem; max-width: 400px; margin: 0 auto; line-height: 1.6; }
+
+    /* ─── Connection Banner ────────────────────────────────────── */
+    .conn-banner {
+      display: none;
+      text-align: center;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      background: rgba(255,80,80,0.12);
+      border-top: 1px solid rgba(255,80,80,0.25);
+      color: #ff8080;
+    }
+
+    /* ─── Responsive ───────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .sidebar { display: none; }
+      header { padding: 12px 16px; }
+      .messages { padding: 12px 16px; }
+      .input-bar { padding: 10px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ────────────────────────────────────────────────── -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">🌌</div>
+    <div class="logo-text">
+      <h1>Benkhawiya Enhanced</h1>
+      <p>AI Cultural Consultant · v2.0.0</p>
+    </div>
+  </div>
+  <div class="status-badge">
+    <div class="status-dot"></div>
+    <span>Cosmic Bridge Active</span>
+  </div>
+</header>
+
+<!-- ── Main ──────────────────────────────────────────────────── -->
+<main>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <h2>✨ Cosmic Principles</h2>
+      <div id="principles-list">
+        <!-- injected by JS -->
+      </div>
+    </div>
+
+    <div class="sidebar-section quick-prompts">
+      <h2>💬 Quick Queries</h2>
+      <button class="quick-btn" data-prompt="Tell me about the principle of DÁNÁ (Truth) in African cosmology.">About DÁNÁ – Truth</button>
+      <button class="quick-btn" data-prompt="How does the concept of MÁTÁ (Justice) guide ethical decision-making?">MÁTÁ – Justice &amp; Ethics</button>
+      <button class="quick-btn" data-prompt="Explain the role of HÓTÉ (Harmony) in community building.">HÓTÉ – Harmony</button>
+      <button class="quick-btn" data-prompt="What are the key teachings of African cosmological wisdom?">African Cosmological Wisdom</button>
+      <button class="quick-btn" data-prompt="How can I apply these cosmic principles in my daily life?">Daily Life Application</button>
+    </div>
+  </aside>
+
+  <!-- Chat -->
+  <section class="chat-container">
+    <div class="messages" id="messages">
+      <div class="welcome" id="welcome">
+        <div class="icon">🌍</div>
+        <h2>Welcome to Benkhawiya Enhanced</h2>
+        <p>Your AI Cultural Consultant bridging African cosmological wisdom with modern understanding. Ask me anything about the cosmic principles, cultural heritage, or philosophical teachings.</p>
+      </div>
+    </div>
+
+    <div class="conn-banner" id="conn-banner">⚠ Disconnected – reconnecting…</div>
+
+    <div class="input-bar">
+      <textarea
+        id="user-input"
+        placeholder="Ask about African cosmology, cultural principles, or philosophy…"
+        rows="1"
+      ></textarea>
+      <button class="send-btn" id="send-btn" title="Send">➤</button>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // ── Cosmic Principles ─────────────────────────────────────────
+  const PRINCIPLES = [
+    { name: "DÁNÁ",   meaning: "Truth",        aspect: "pelu" },
+    { name: "MÁTÁ",   meaning: "Justice",      aspect: "sewu" },
+    { name: "HÓTÉ",   meaning: "Harmony",      aspect: "ruwa" },
+    { name: "MÉKÁ",   meaning: "Balance",      aspect: "temu" },
+    { name: "SÉBÁ",   meaning: "Order",        aspect: "sewu" },
+    { name: "KÉPÉ",   meaning: "Reciprocity",  aspect: "ruwa" },
+    { name: "ÌTỌJÚ", meaning: "Mystery",       aspect: "ntu"  }
+  ];
+
+  const principlesList = document.getElementById('principles-list');
+  PRINCIPLES.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'principle-card';
+    card.innerHTML = `
+      <div class="principle-name">${p.name}</div>
+      <div class="principle-meaning">${p.meaning}</div>
+      <div class="principle-aspect">aspect: ${p.aspect}</div>`;
+    card.addEventListener('click', () => {
+      setInput(`Tell me about the cosmic principle of ${p.name} (${p.meaning}) and its aspect ${p.aspect}.`);
+    });
+    principlesList.appendChild(card);
+  });
+
+  // ── WebSocket ─────────────────────────────────────────────────
+  const messagesEl  = document.getElementById('messages');
+  const welcomeEl   = document.getElementById('welcome');
+  const inputEl     = document.getElementById('user-input');
+  const sendBtn     = document.getElementById('send-btn');
+  const connBanner  = document.getElementById('conn-banner');
+
+  let ws = null;
+  let reconnectTimer = null;
+
+  function getWsUrl() {
+    const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+    return `${proto}://${location.host}/ws/chat`;
+  }
+
+  function connect() {
+    ws = new WebSocket(getWsUrl());
+
+    ws.onopen = () => {
+      connBanner.style.display = 'none';
+      sendBtn.disabled = false;
+      if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+    };
+
+    ws.onmessage = (evt) => {
+      removeTyping();
+      appendMessage('ai', evt.data);
+    };
+
+    ws.onclose = () => {
+      connBanner.style.display = 'block';
+      sendBtn.disabled = true;
+      reconnectTimer = setTimeout(connect, 3000);
+    };
+
+    ws.onerror = (err) => {
+      // Log the error for debugging; close triggers the reconnect logic in onclose
+      console.error('WebSocket error:', err);
+      ws.close();
+    };
+  }
+
+  connect();
+
+  // ── Message Helpers ───────────────────────────────────────────
+  function hideWelcome() {
+    if (welcomeEl && welcomeEl.parentNode) welcomeEl.remove();
+  }
+
+  function appendMessage(role, text) {
+    hideWelcome();
+    const div = document.createElement('div');
+    div.className = `message ${role}`;
+    div.innerHTML = `
+      <div class="avatar">${role === 'user' ? '👤' : '🌌'}</div>
+      <div class="bubble">
+        <div class="sender">${role === 'user' ? 'You' : 'Benkhawiya AI'}</div>
+        <div class="content">${escapeHtml(text)}</div>
+      </div>`;
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return div;
+  }
+
+  function showTyping() {
+    hideWelcome();
+    const div = document.createElement('div');
+    div.className = 'message ai typing';
+    div.id = 'typing-indicator';
+    div.innerHTML = `
+      <div class="avatar">🌌</div>
+      <div class="bubble"><div class="dots"><span></span><span></span><span></span></div></div>`;
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function removeTyping() {
+    const t = document.getElementById('typing-indicator');
+    if (t) t.remove();
+  }
+
+  function escapeHtml(str) {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/\n/g, '<br>');
+  }
+
+  // ── Send ──────────────────────────────────────────────────────
+  function sendMessage() {
+    const text = inputEl.value.trim();
+    if (!text || !ws || ws.readyState !== WebSocket.OPEN) return;
+
+    appendMessage('user', text);
+    showTyping();
+    ws.send(text);
+    inputEl.value = '';
+    inputEl.style.height = 'auto';
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+
+  inputEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+
+  // Auto-resize textarea
+  inputEl.addEventListener('input', () => {
+    inputEl.style.height = 'auto';
+    inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+  });
+
+  // ── Quick Prompts ─────────────────────────────────────────────
+  document.querySelectorAll('.quick-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setInput(btn.dataset.prompt);
+      sendMessage();
+    });
+  });
+
+  function setInput(text) {
+    inputEl.value = text;
+    inputEl.style.height = 'auto';
+    inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+    inputEl.focus();
+  }
+</script>
+</body>
+</html>
