@@ -1,11 +1,17 @@
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 import logging
 from contextlib import asynccontextmanager
 
 from app.backend.services.langchain_service import EnhancedLangChainService
+
+BASE_DIR = Path(__file__).resolve().parent
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -38,8 +44,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/")
-async def root():
+@app.get("/", response_class=HTMLResponse)
+async def root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
+@app.get("/api/status")
+async def status():
     return {
         "message": "🌌 Benkhawiya Enhanced AI Cultural Consultant",
         "status": "operational",
